@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('プロジェクト一覧') }}
-        </h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">プロジェクト一覧</h2>
     </x-slot>
 
     <div class="py-12">
@@ -19,7 +17,7 @@
                         <br>
                         @foreach($projects as $project)
                             <tr>
-                                <td class="border-2">{{ $project->name }}</td>
+                                <td class="border-2">{{ $project->project_name }}</td>
                                 <td class="border-2">{{ $project->estimation }}</td>
                                 <td class="border-2">{{ $project->release_date }}</td>
                                 <td class="border-2">{{ $project->work_date }}</td>
