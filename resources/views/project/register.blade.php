@@ -1,53 +1,48 @@
 <x-app-layout>
-    <h1>TODO プロジェクト登録画面を実装する</h1>
-    <form method="POST" action="{{ route('project.register') }}">
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">プロジェクト登録</h2>
+    </x-slot>
+    <form method="POST" action="{{ route('project.store') }}">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        <!-- プロジェクト名 -->
+        <div class="mt-4 mx-40">
+            <x-input-label for="projectName">プロジェクト名</x-input-label>
+            <x-text-input id="projectName" class="block mt-1 w-9/12" type="text" name="projectName" :value="old('projectName')" required autofocus autocomplete="projectName" />
+            <x-input-error :messages="$errors->get('projectName')" class="mt-2" />
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <!-- 見積もり工数（人日） -->
+        <div class="mt-4 mx-40">
+            <x-input-label for="estimation">見積もり工数（人日）</x-input-label>
+            <x-number-input id="estimation" class="block mt-1 w-9/12" name="estimation" min='1' :value="old('estimation')" required />
+            <x-input-error :messages="$errors->get('estimation')" class="mt-2" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <!-- リリース予定日 -->
+        <div class="mt-4 mx-40">
+            <x-input-label for="releaseDate">リリース予定日</x-input-label>
+            <input id="releaseDate" class="block mt-1 w-9/12" type="date" name="releaseDate" required/>
+            <x-input-error :messages="$errors->get('releaseDate')" class="mt-2" />
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <!-- 稼働予定月 -->
+        <div class="mt-4 mx-40">
+            <x-input-label for="workDate">稼働予定月</x-input-label>
+            <input id="workDate" class="block mt-1 w-9/12" type="month" name="workDate" required />
+            <x-input-error :messages="$errors->get('workDate')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ml-4">
-                {{ __('Register') }}
-            </x-primary-button>
+        <!-- メンバ登録 -->
+        <div class="mt-4 mx-40">
+            <x-input-label>メンバー</x-input-label>
+            @foreach($users as $user)
+            <input class='ml-1' id="member" type="checkbox" name="member" value="{{ $user->id }}"> {{ $user->name }}
+            @endforeach
+            <x-input-error :messages="$errors->get('member')" class="mt-2" />
+        </div>
+        <div class="flex items-center mt-4 mx-40">
+            <x-primary-button class="ml-4">登録</x-primary-button>
         </div>
     </form>
 </x-guest-layout>
