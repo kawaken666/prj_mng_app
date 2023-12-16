@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectDetailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/project', [ProjectController::class, 'create'])->name('project.register');
     Route::post('/project', [ProjectController::class, 'store'])->name('project.store');
+    Route::get('/projectDetail', [ProjectDetailController::class, 'index'])->name('projectDetail');    
 });
 
 require __DIR__.'/auth.php';
