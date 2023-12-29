@@ -2,69 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Project\ProjectDetailRequest;
+use App\Models\Project;
 use App\Models\ProjectDetail;
 use App\Models\ProjectMember;
 use Illuminate\Http\Request;
-
-use function PHPUnit\Framework\isEmpty;
+use Illuminate\Support\Facades\Log;
 
 class ProjectDetailController extends Controller
 {
     /**
      * 初期表示メソッド
      */
-    public function index(Request $request){
-        // 日付設定。初回遷移時は当日を設定する。
-        $date = (isset($request->date)) ? $request->date : date('Y-m-d');
+    public function index(ProjectDetailRequest $request, $id){
+        // 対象プロジェクト存在チェック
+        $project = Project::where('project_id', $id)->get();
+        // 存在しない場合、ダッシュボードにリダイレクト                
+        if($project->isEmpty()){
+            Log::debug('プロジェクト未存在');
+            return redirect('dashboard');
+        }
 
-        // プロジェクトメンバー情報を取得
-        $projectMemberInfo = ProjectMember::
-                        leftjoin('users', 'project_members.user_id', '=', 'users.id')
-                        ->select('name')
-                        ->where('project_id', $request->id)
-                        ->get();
+        // 日付設定（フォームに対象日付がない場合は当日）
+        $targetDate = (isset($request->targetDate)) ? $request->targetDate : date('Y-m-d');
 
-
-        // プロジェクト詳細とそれに紐づくメンバーごとの詳細をDBから取得
-        $projectDetailInfo = ProjectDetail::
+        // プロジェクト詳細とそれに紐づくメンバーごとの状況詳細を取得
+        $projectDetail = ProjectDetail::
                         leftjoin('project_member_details', 'project_details.project_detail_id', '=', 'project_member_details.project_detail_id')
                         ->join('users', 'project_member_details.user_id', '=', 'users.id')
-                        ->select('project_details.status', 'project_details.overview as projectOverview', 'project_details.date', 'project_member_details.result_man_hour', 'project_member_details.overview as memberOverview', 'users.name')
-                        ->where('project_details.project_detail_id', $request->id)
-                        ->where('date', $date)
+                        ->select('project_id', 'project_details.status', 'project_details.overview as projectOverview', 'project_details.date', 'project_member_details.result_man_hour', 'project_member_details.overview as memberOverview', 'users.name')
+                        ->where('project_details.project_detail_id', $id)
+                        ->where('date', $targetDate)
                         ->get();
         
-        if(!($projectDetailInfo->isEmpty())){
+        // プロジェクトメンバー情報を取得
+        $projectMember = ProjectMember::
+                        leftjoin('users', 'project_members.user_id', '=', 'users.id')
+                        ->select('name')
+                        ->where('project_id', $id)
+                        ->get();
+
+        if($projectDetail->isNotEmpty()){
             // 対象日付のプロジェクト詳細が登録されていた場合
             // statusのコード値をコード名称に変換
-             switch ($projectDetailInfo[0]->status) {
+             switch ($projectDetail[0]->status) {
                  case 0:
-                     $projectDetailInfo[0]->status = 'オンスケ';
+                     $projectDetail[0]->status = 'オンスケ';
                      break;
                  case 1:
-                     $projectDetailInfo[0]->status = '遅延';
+                     $projectDetail[0]->status = '遅延';
                      break;
                  case 2:
-                     $projectDetailInfo[0]->status = '前倒し';
+                     $projectDetail[0]->status = '前倒し';
                      break;
                  default:
-                     $projectDetailInfo[0]->status = '登録なし';
+                     $projectDetail[0]->status = '登録なし';
                      break;
              }
         }else{
             // 対象日付のプロジェクト詳細が登録されてない場合
-            foreach($projectMemberInfo as $info){
+            foreach($projectMember as $member){
                 // 登録がなかった場合のモデルインスタンス生成処理
-                $projectDetailInfo[] = new ProjectDetail([
-                    'date' => $date,
+                $projectDetail[] = new ProjectDetail([
+                    'project_id' => $id,
+                    'date' => $targetDate,
                     'status' => '登録なし',
                     'projectOverview' => '',
-                    'name' => $info->name,
+                    'name' => $member->name,
                     'result_man_hour' => '',
                     'memberOverview' => ''
                 ]);
             }
         }
-        return view('project.projectDetail', ['projectDetailInfo' => $projectDetailInfo]);
+        return view('project.projectDetail', ['projectDetail' => $projectDetail]);
     }
 }

@@ -11,6 +11,7 @@ class ProjectDetail extends Model
 
     // 手動でモデルインスタンスを生成する場合のカラム操作許可のために必要
     protected $fillable = [
+        'project_id',
         'date',
         'status',
         'projectOverview',
