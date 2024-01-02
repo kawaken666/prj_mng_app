@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
-class ProjectsTableSeeder extends Seeder
+class ProjectSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,8 +18,8 @@ class ProjectsTableSeeder extends Seeder
     public function run()
     {
         $param = [
-            'name' => 'SMS認証装着',
-            'estimation' => 250,
+            'project_name' => 'dSMS認証装着',
+            'estimation' => 350,
             'release_date' => '20240129',
             'work_date' => '20231201',
         ];
